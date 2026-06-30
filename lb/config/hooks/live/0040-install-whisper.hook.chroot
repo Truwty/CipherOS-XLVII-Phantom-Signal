@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Installing faster-whisper STT..."
+pip3 install --break-system-packages faster-whisper==1.0.3 ctranslate2 \
+    pyaudio sounddevice soundfile numpy webrtcvad openwakeword silero-vad
+python3 - << 'PYEOF'
+from faster_whisper import WhisperModel
+print("Downloading whisper base.en model...")
+WhisperModel("base.en", device="cpu", compute_type="int8")
+print("Downloading whisper small model...")
+WhisperModel("small", device="cpu", compute_type="int8")
+print("Whisper models ready.")
+PYEOF
+python3 -c "import openwakeword; openwakeword.utils.download_models(); print('Wake word models ready.')" 2>/dev/null || true
+echo "[CipherOS] faster-whisper installed."

@@ -1,0 +1,19 @@
+[Unit]
+Description=CipherOS Background Screen Reader
+After=cipher-ai-core.service graphical.target
+
+[Service]
+Type=simple
+User=cipher
+Environment=HOME=/home/cipher
+Environment=PYTHONUNBUFFERED=1
+Environment=WAYLAND_DISPLAY=wayland-0
+Environment=DISPLAY=:0
+ExecStart=/usr/bin/python3 /usr/local/lib/cipher/vision/screen_reader.py
+Restart=always
+RestartSec=5s
+StandardOutput=append:/home/cipher/.local/share/cipher/logs/screen-reader.log
+StandardError=append:/home/cipher/.local/share/cipher/logs/screen-reader-error.log
+
+[Install]
+WantedBy=graphical.target

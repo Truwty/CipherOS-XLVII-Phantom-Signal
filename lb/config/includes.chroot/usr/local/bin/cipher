@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+"""CipherOS CLI — primary interface to the AI core."""
+import argparse
+import asyncio
+import json
+import os
+import readline
+import sys
+from pathlib import Path
+
+AI_SOCKET   = "/tmp/cipher_ai.sock"
+VOICE_SOCKET = "/tmp/cipher_voice.sock"
+
+BOLD  = "\033[1m"
+CYAN  = "\033[0;36m"
+GREEN = "\033[0;32m"
+YELLOW= "\033[1;33m"
+NC    = "\033[0m"
+
+
+async def _send(socket_path: str, payload: dict, timeout: float = 60.0) -> dict:
+    reader, writer = await asyncio.wait_for(
+        asyncio.open_unix_connection(socket_path), timeout=5.0
+    )
+    writer.write(json.dumps(payload).encode())
+    await writer.drain()
+    data = await asyncio.wait_for(reader.read(65536), timeout=timeout)
+    writer.close()
+    return json.loads(data.decode())
+
+
+def _print_response(text: str) -> None:
+    print(f"\n{CYAN}CipherOS:{NC} {text}\n")
+
+
+async def cmd_chat(args: argparse.Namespace) -> None:
+    query = " ".join(args.query) if args.query else None
+    if query:
+        # Single query mode
+        try:
+            r = await _send(AI_SOCKET, {"command": "chat", "text": query})
+            _print_response(r.get("response", "No response."))
+        except FileNotFoundError:
+            print(f"{YELLOW}AI core not running. Start with: systemctl start cipher-ai-core{NC}")
+        except Exception as e:
+            print(f"Error: {e}")
+    else:
+        # Interactive REPL
+        print(f"{BOLD}{CYAN}CipherOS Interactive Chat{NC}")
+        print(f"Type your message and press Enter. Commands: /clear /status /quit\n")
+        while True:
+            try:
+                user_input = input(f"{GREEN}You:{NC} ").strip()
+            except (EOFError, KeyboardInterrupt):
+                print("\nGoodbye.")
+                break
+            if not user_input:
+                continue
+            if user_input == "/quit" or user_input == "/exit":
+                break
+            if user_input == "/clear":
+                try:
+                    await _send(AI_SOCKET, {"command": "clear_context"})
+                    print(f"{CYAN}Context cleared.{NC}")
+                except Exception:
+                    pass
+                continue
+            if user_input == "/status":
+                try:
+                    r = await _send(AI_SOCKET, {"command": "status"})
+                    print(f"{CYAN}Status:{NC} {json.dumps(r, indent=2)}")
+                except Exception as e:
+                    print(f"Status error: {e}")
+                continue
+            try:
+                r = await _send(AI_SOCKET, {"command": "chat", "text": user_input})
+                _print_response(r.get("response", "No response."))
+            except FileNotFoundError:
+                print(f"{YELLOW}AI core not running.{NC}")
+            except Exception as e:
+                print(f"Error: {e}")
+
+
+async def cmd_voice(args: argparse.Namespace) -> None:
+    if args.action == "--push-to-talk":
+        try:
+            reader, writer = await asyncio.open_unix_connection(VOICE_SOCKET)
+            writer.write(b"trigger")
+            await writer.drain()
+            writer.close()
+            print("Voice capture triggered.")
+        except Exception:
+            print("Voice daemon not running.")
+
+
+async def cmd_speak(args: argparse.Namespace) -> None:
+    text = " ".join(args.text)
+    if not text:
+        text = sys.stdin.read()
+    try:
+        reader, writer = await asyncio.open_unix_connection(VOICE_SOCKET)
+        writer.write(b"speak")
+        await writer.drain()
+        writer.write(text.encode())
+        await writer.drain()
+        writer.close()
+    except Exception as e:
+        # Fallback: call piper directly
+        import subprocess
+        subprocess.run(["piper-speak", text])
+
+
+async def cmd_screen_ask(args: argparse.Namespace) -> None:
+    screen_file = Path("/tmp/cipher_screen_text.txt")
+    if not screen_file.exists():
+        print("No screen capture available.")
+        return
+    screen_text = screen_file.read_text()[:4000]
+    prompt = f"I can see the following on my screen:\n\n{screen_text}\n\nWhat would you like to know or do?"
+    r = await _send(AI_SOCKET, {"command": "chat", "text": prompt})
+    _print_response(r.get("response", ""))
+
+
+async def cmd_memory(args: argparse.Namespace) -> None:
+    sys.path.insert(0, "/usr/local/lib")
+    from cipher.memory.memory_store import MemoryStore
+    store = MemoryStore()
+    await store.initialize()
+
+    if args.action == "show":
+        entries = await store.get_all(limit=50)
+        if not entries:
+            print("Memory is empty.")
+        else:
+            for e in entries:
+                ts = e.get("created_at", 0)
+                from datetime import datetime
+                dt = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M")
+                print(f"[{e.get('category','?')}] {dt}: {e.get('content','')[:100]}")
+    elif args.action == "search" and args.query:
+        query = " ".join(args.query)
+        results = await store.search(query)
+        for r in results:
+            print(f"[{r.get('score',0):.2f}] {r.get('content','')[:120]}")
+    elif args.action == "add" and args.query:
+        content = " ".join(args.query)
+        mem_id = await store.add(content)
+        print(f"Stored: {mem_id}")
+    elif args.action == "count":
+        n = await store.count()
+        print(f"Total memories: {n}")
+    else:
+        print("Usage: cipher memory [show|search|add|count] [query]")
+    await store.close()
+
+
+async def cmd_status(args: argparse.Namespace) -> None:
+    try:
+        r = await _send(AI_SOCKET, {"command": "status"}, timeout=5.0)
+        print(f"{BOLD}{CYAN}CipherOS AI Core Status{NC}")
+        for k, v in r.items():
+            print(f"  {k}: {v}")
+    except Exception:
+        print(f"{YELLOW}AI core not responding.{NC}")
+    import subprocess
+    for svc in ["cipher-ai-core", "cipher-voice", "ollama"]:
+        r = subprocess.run(["systemctl", "is-active", svc], capture_output=True, text=True)
+        status = r.stdout.strip()
+        color = GREEN if status == "active" else YELLOW
+        print(f"  {svc}: {color}{status}{NC}")
+
+
+async def cmd_briefing(args: argparse.Namespace) -> None:
+    sys.path.insert(0, "/usr/local/lib")
+    from cipher.briefing.morning_briefing import run as briefing_run
+    await briefing_run(auto=(args.force or False))
+
+
+async def main_async() -> None:
+    parser = argparse.ArgumentParser(prog="cipher", description="CipherOS AI CLI")
+    sub = parser.add_subparsers(dest="command")
+
+    p_chat = sub.add_parser("chat", help="Chat with the AI")
+    p_chat.add_argument("query", nargs="*")
+
+    p_voice = sub.add_parser("voice", help="Voice control")
+    p_voice.add_argument("action", nargs="?", default="--push-to-talk")
+
+    p_speak = sub.add_parser("speak", help="Speak text via TTS")
+    p_speak.add_argument("text", nargs="*")
+
+    p_screen = sub.add_parser("screen-ask", help="Ask about current screen")
+    p_screen_read = sub.add_parser("screen-read", help="Read screen text aloud")
+
+    p_mem = sub.add_parser("memory", help="Memory operations")
+    p_mem.add_argument("action", choices=["show", "search", "add", "count"])
+    p_mem.add_argument("query", nargs="*")
+
+    p_status = sub.add_parser("status", help="System status")
+
+    p_brief = sub.add_parser("briefing", help="Morning briefing")
+    p_brief.add_argument("--force", action="store_true", help="Speak the briefing")
+
+    p_quick = sub.add_parser("quick-ask", help="Quick text prompt via fuzzel")
+
+    args = parser.parse_args()
+
+    if args.command == "chat":
+        await cmd_chat(args)
+    elif args.command == "voice":
+        await cmd_voice(args)
+    elif args.command == "speak":
+        await cmd_speak(args)
+    elif args.command == "screen-ask":
+        await cmd_screen_ask(args)
+    elif args.command == "screen-read":
+        screen_text = Path("/tmp/cipher_screen_text.txt")
+        if screen_text.exists():
+            text = screen_text.read_text()[:2000]
+            await cmd_speak(argparse.Namespace(text=[text]))
+    elif args.command == "memory":
+        await cmd_memory(args)
+    elif args.command == "status":
+        await cmd_status(args)
+    elif args.command == "briefing":
+        await cmd_briefing(args)
+    elif args.command == "quick-ask":
+        import subprocess
+        try:
+            result = subprocess.run(
+                ["fuzzel", "--dmenu", "-p", "Ask CipherOS: "],
+                capture_output=True, text=True
+            )
+            query = result.stdout.strip()
+            if query:
+                r = await _send(AI_SOCKET, {"command": "chat", "text": query})
+                resp = r.get("response", "")
+                subprocess.Popen(["notify-send", "-t", "15000", "CipherOS", resp])
+        except Exception as e:
+            print(f"Error: {e}")
+    else:
+        parser.print_help()
+
+
+def main() -> None:
+    asyncio.run(main_async())
+
+
+if __name__ == "__main__":
+    main()

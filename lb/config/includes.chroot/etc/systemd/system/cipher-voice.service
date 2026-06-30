@@ -1,0 +1,20 @@
+[Unit]
+Description=CipherOS Voice Processing Daemon
+After=cipher-ai-core.service pipewire.service
+Requires=pipewire.service
+
+[Service]
+Type=simple
+User=cipher
+Group=cipher
+Environment=HOME=/home/cipher
+Environment=PYTHONUNBUFFERED=1
+Environment=PULSE_SERVER=unix:/run/user/1000/pulse/native
+ExecStart=/usr/bin/python3 /usr/local/lib/cipher/voice/audio_pipeline.py
+Restart=on-failure
+RestartSec=3s
+StandardOutput=append:/home/cipher/.local/share/cipher/logs/voice.log
+StandardError=append:/home/cipher/.local/share/cipher/logs/voice-error.log
+
+[Install]
+WantedBy=multi-user.target graphical.target

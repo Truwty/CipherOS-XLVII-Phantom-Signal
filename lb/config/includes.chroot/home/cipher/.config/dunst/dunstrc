@@ -1,0 +1,71 @@
+[global]
+    monitor          = 0
+    follow           = mouse
+    width            = (280, 500)
+    height           = 200
+    origin           = top-right
+    offset           = 12x52
+    scale            = 0
+    notification_limit = 8
+    progress_bar     = true
+    indicate_hidden  = yes
+    transparency     = 0
+    separator_height = 2
+    padding          = 10
+    horizontal_padding = 14
+    text_icon_padding  = 8
+    frame_width      = 1
+    frame_color      = "#00d4ff44"
+    sort             = yes
+    font             = JetBrains Mono 11
+    line_height      = 0
+    markup           = full
+    format           = "<b>%s</b>\n%b"
+    alignment        = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    word_wrap        = yes
+    ignore_newline   = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators  = yes
+    icon_theme       = Papirus-Dark
+    enable_recursive_icon_lookup = true
+    icon_position    = left
+    min_icon_size    = 32
+    max_icon_size    = 64
+    icon_path        = /usr/share/icons/Papirus-Dark/16x16/status/:/usr/share/icons/Papirus-Dark/16x16/devices/
+    sticky_history   = yes
+    history_length   = 40
+    dmenu            = /usr/bin/fuzzel --dmenu -p "Notification: "
+    browser          = /usr/bin/chromium
+    always_run_script = true
+    title            = Dunst
+    class            = Dunst
+    corner_radius    = 10
+    ignore_dbusclose = false
+    mouse_left_click  = close_current
+    mouse_middle_click = do_action, close_current
+    mouse_right_click = close_all
+
+[experimental]
+    per_monitor_dpi = false
+
+[urgency_low]
+    background    = "#0d0d1ecc"
+    foreground    = "#7ab8d4"
+    frame_color   = "#00d4ff33"
+    timeout       = 5
+
+[urgency_normal]
+    background    = "#0d0d1ecc"
+    foreground    = "#c8e8ff"
+    frame_color   = "#00d4ff66"
+    timeout       = 8
+
+[urgency_critical]
+    background    = "#1a0010cc"
+    foreground    = "#ff4488"
+    frame_color   = "#ff4488"
+    timeout       = 0
+    icon          = dialog-warning

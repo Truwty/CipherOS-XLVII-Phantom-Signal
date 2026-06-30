@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Installing additional fonts..."
+mkdir -p /usr/local/share/fonts/cipher
+JBMONO_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip"
+wget -q --show-progress "${JBMONO_URL}" -O /tmp/JetBrainsMono.zip
+unzip -q /tmp/JetBrainsMono.zip -d /usr/local/share/fonts/cipher/JetBrainsMonoNF/
+rm /tmp/JetBrainsMono.zip
+FIRA_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip"
+wget -q "${FIRA_URL}" -O /tmp/FiraCode.zip
+unzip -q /tmp/FiraCode.zip -d /usr/local/share/fonts/cipher/FiraCodeNF/
+rm /tmp/FiraCode.zip
+fc-cache -fv /usr/local/share/fonts/
+echo "[CipherOS] Fonts installed."

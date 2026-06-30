@@ -1,0 +1,30 @@
+[Unit]
+Description=CipherOS AI Core Daemon
+After=network.target ollama.service pipewire.service
+Wants=ollama.service pipewire.service
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+[Service]
+Type=notify
+User=cipher
+Group=cipher
+WorkingDirectory=/home/cipher
+Environment=HOME=/home/cipher
+Environment=PYTHONUNBUFFERED=1
+Environment=OLLAMA_HOST=127.0.0.1:11434
+Environment=CIPHER_CONFIG=/etc/cipher/cipher.conf
+ExecStart=/usr/bin/python3 /usr/local/lib/cipher/core/ai_core.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5s
+TimeoutStartSec=120
+TimeoutStopSec=30
+WatchdogSec=60s
+NotifyAccess=main
+StandardOutput=append:/home/cipher/.local/share/cipher/logs/ai-core.log
+StandardError=append:/home/cipher/.local/share/cipher/logs/ai-core-error.log
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target graphical.target

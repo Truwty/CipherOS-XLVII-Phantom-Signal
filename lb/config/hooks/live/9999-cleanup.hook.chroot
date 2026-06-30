@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+apt-get clean && apt-get autoremove -y
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache
+find /usr -name "*.pyc" -delete 2>/dev/null || true
+find /usr -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+rm -rf /root/.cargo/registry 2>/dev/null || true
+echo "[CipherOS] Cleanup done."

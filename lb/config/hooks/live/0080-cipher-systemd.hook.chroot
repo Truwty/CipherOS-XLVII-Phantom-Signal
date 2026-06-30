@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Enabling systemd services..."
+systemctl enable \
+    cipher-ai-core.service \
+    cipher-voice.service \
+    cipher-screen-reader.service \
+    cipher-system-monitor.service \
+    cipher-self-repair.service \
+    cipher-memory-consolidate.timer \
+    cipher-morning-briefing.timer \
+    ollama.service \
+    sddm.service 2>/dev/null || true
+install -d -m 0755 /home/cipher/.local/share/cipher/logs
+cat > /etc/logrotate.d/cipheros << 'LOGCFG'
+/home/cipher/.local/share/cipher/logs/*.log {
+    daily
+    rotate 7
+    compress
+    missingok
+    notifempty
+    create 640 cipher cipher
+}
+LOGCFG
+echo "[CipherOS] Services enabled."

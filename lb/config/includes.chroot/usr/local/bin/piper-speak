@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# CipherOS — TTS wrapper: pipe text to Piper → aplay
+set -euo pipefail
+MODEL="${CIPHER_TTS_MODEL:-/usr/local/share/cipher/piper-models/en_US-hfc_female-medium.onnx}"
+[[ $# -eq 0 ]] && { echo "Usage: piper-speak <text>"; exit 1; }
+echo "$*" | piper --model "$MODEL" --output_raw 2>/dev/null | aplay -r 22050 -f S16_LE -t raw - 2>/dev/null

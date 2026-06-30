@@ -1,0 +1,8 @@
+[Unit]
+Description=CipherOS Nightly Memory Consolidation
+
+[Service]
+Type=oneshot
+User=cipher
+Environment=HOME=/home/cipher
+ExecStart=/usr/bin/python3 /usr/local/lib/cipher/memory/consolidator.py

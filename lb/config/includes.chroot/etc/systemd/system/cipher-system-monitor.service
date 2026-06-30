@@ -1,0 +1,17 @@
+[Unit]
+Description=CipherOS Audio-Visual System Monitor
+After=cipher-ai-core.service cipher-voice.service
+
+[Service]
+Type=simple
+User=cipher
+Environment=HOME=/home/cipher
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /usr/local/lib/cipher/monitor/system_monitor.py
+Restart=always
+RestartSec=10s
+StandardOutput=append:/home/cipher/.local/share/cipher/logs/system-monitor.log
+StandardError=append:/home/cipher/.local/share/cipher/logs/system-monitor-error.log
+
+[Install]
+WantedBy=multi-user.target

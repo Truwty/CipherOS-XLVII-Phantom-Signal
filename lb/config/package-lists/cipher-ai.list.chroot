@@ -1,0 +1,5 @@
+# AI runtime dependencies
+python3-numpy python3-scipy python3-sklearn
+libopenblas-dev liblapack-dev gfortran
+portaudio19-dev libportaudio2 libsoundfile1-dev
+libespeak-ng1 espeak-ng sox libsox-fmt-all

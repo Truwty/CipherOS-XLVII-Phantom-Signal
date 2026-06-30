@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# CipherOS first-run setup assistant
+set -euo pipefail
+echo "CipherOS XLVII — First Boot Configuration"
+echo "This will configure your AI assistant."
+echo ""
+read -rp "Your name (for personalization): " USER_NAME
+read -rp "Preferred language (e.g. en, fr, de): " LANG_CODE
+echo ""
+python3 -c "
+import sys; sys.path.insert(0,'/usr/local/lib')
+from cipher.memory.memory_store import MemoryStore
+from cipher.utils.lang_detect import save_language_preference
+import asyncio
+
+async def setup():
+    store = MemoryStore()
+    await store.initialize()
+    await store.add('User name: ${USER_NAME}', category='identity')
+    await store.add('Preferred language: ${LANG_CODE}', category='identity')
+    await store.close()
+    save_language_preference('${LANG_CODE}')
+    print('Identity stored.')
+
+asyncio.run(setup())
+"
+systemctl --user start cipher-ai-core cipher-voice 2>/dev/null || sudo systemctl restart cipher-ai-core cipher-voice
+echo "CipherOS configured. Welcome, ${USER_NAME}!"

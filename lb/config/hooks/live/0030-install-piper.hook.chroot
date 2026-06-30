@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Installing Piper TTS..."
+pip3 install --break-system-packages piper-tts==1.2.0
+mkdir -p /usr/local/share/cipher/piper-models
+cd /usr/local/share/cipher/piper-models
+BASE="https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/hfc_female/medium"
+wget -q --show-progress "${BASE}/en_US-hfc_female-medium.onnx" -O en_US-hfc_female-medium.onnx
+wget -q "${BASE}/en_US-hfc_female-medium.onnx.json" -O en_US-hfc_female-medium.onnx.json
+BASE_GB="https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_GB/jenny_dioco/medium"
+wget -q --show-progress "${BASE_GB}/en_GB-jenny_dioco-medium.onnx" -O en_GB-jenny_dioco-medium.onnx
+wget -q "${BASE_GB}/en_GB-jenny_dioco-medium.onnx.json" -O en_GB-jenny_dioco-medium.onnx.json
+echo "[CipherOS] Piper TTS installed."

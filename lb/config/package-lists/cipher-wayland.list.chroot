@@ -1,0 +1,24 @@
+# Wayland core
+wayland-utils xwayland libgbm-dev libegl-dev libgles2-mesa-dev
+mesa-utils mesa-vulkan-drivers vulkan-tools libvulkan-dev
+
+# Wayland tools
+grim slurp wl-clipboard cliphist wf-recorder swappy
+xdg-utils xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs
+
+# Display / DM
+sddm qt5-qpa-plugins qml-module-qtquick-controls2 qml-module-qtquick2
+
+# GTK
+gtk2-engines-murrine adwaita-icon-theme papirus-icon-theme nwg-look
+
+# Apps
+kitty thunar thunar-archive-plugin file-roller evince vlc mpv
+dunst libnotify-bin fuzzel
+
+# Vision/OCR
+tesseract-ocr tesseract-ocr-eng tesseract-ocr-all imagemagick
+libopencv-dev python3-opencv
+
+# Misc
+brightnessctl wtype xdotool

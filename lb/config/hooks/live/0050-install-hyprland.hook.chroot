@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Installing Hyprland Wayland compositor..."
+if ! apt-get install -y hyprland hyprpaper hypridle hyprlock 2>/dev/null; then
+    echo "Building Hyprland from source..."
+    git clone --recursive --depth=1 https://github.com/hyprwm/Hyprland.git /tmp/hl
+    cd /tmp/hl && make install && rm -rf /tmp/hl
+    for pkg in hyprpaper hypridle hyprlock; do
+        git clone --depth=1 "https://github.com/hyprwm/${pkg}.git" "/tmp/${pkg}"
+        cd "/tmp/${pkg}"
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --jobs "$(nproc)"
+        cmake --install build
+        rm -rf "/tmp/${pkg}"
+    done
+fi
+apt-get install -y fuzzel 2>/dev/null || {
+    git clone --depth=1 https://codeberg.org/dnkl/fuzzel.git /tmp/fuzzel
+    cd /tmp/fuzzel && meson setup --buildtype=release build
+    ninja -C build && ninja -C build install && rm -rf /tmp/fuzzel
+}
+apt-get install -y xdg-desktop-portal-hyprland 2>/dev/null || true
+echo "[CipherOS] Hyprland installed."

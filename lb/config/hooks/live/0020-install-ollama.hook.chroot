@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Installing Ollama local AI server..."
+curl -fsSL https://ollama.com/install.sh | sh
+systemctl enable ollama.service 2>/dev/null || true
+mkdir -p /etc/ollama
+cat > /etc/ollama/config.env << 'ENVCFG'
+OLLAMA_HOST=127.0.0.1:11434
+OLLAMA_MODELS=/var/lib/ollama/models
+OLLAMA_KEEP_ALIVE=24h
+OLLAMA_MAX_LOADED_MODELS=3
+OLLAMA_NUM_PARALLEL=2
+OLLAMA_FLASH_ATTENTION=1
+ENVCFG
+usermod -aG ollama cipher 2>/dev/null || true
+echo "[CipherOS] Ollama installed."

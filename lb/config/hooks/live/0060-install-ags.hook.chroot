@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Installing AGS v2 (Aylur's Gtk Shell)..."
+npm install -g typescript sass bun
+git clone --depth=1 https://github.com/Aylur/ags.git /tmp/ags
+cd /tmp/ags
+npm install
+meson setup --buildtype=release build
+ninja -C build
+ninja -C build install
+rm -rf /tmp/ags
+echo "[CipherOS] AGS installed."

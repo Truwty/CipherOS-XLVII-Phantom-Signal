@@ -1,0 +1,10 @@
+[Unit]
+Description=CipherOS Memory Consolidation Timer
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+AccuracySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

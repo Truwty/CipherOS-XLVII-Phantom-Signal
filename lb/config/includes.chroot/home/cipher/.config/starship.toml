@@ -1,0 +1,65 @@
+format = """
+[░▒▓](fg:#00d4ff)\
+[$os](bg:#00d4ff fg:#000000 bold)\
+[▓▒░ ](fg:#00d4ff bg:#0080ff)\
+[$directory](bg:#0080ff fg:#ffffff bold)\
+[▓▒░ ](fg:#0080ff bg:#1a1a2e)\
+$git_branch\
+$git_status\
+[▓▒░](fg:#1a1a2e)\
+$fill\
+$python\
+$nodejs\
+$rust\
+$cmd_duration\
+$time\
+\n$character"""
+
+[os]
+disabled = false
+
+[directory]
+style = "bg:#0080ff fg:#ffffff bold"
+format = "[ $path ]($style)"
+truncation_length = 4
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = " "
+style = "bg:#1a1a2e fg:#00d4ff"
+format = "[[ $symbol$branch ](bg:#1a1a2e fg:#00d4ff)]($style)"
+
+[git_status]
+style = "bg:#1a1a2e fg:#ffaa00"
+format = "[[($all_status$ahead_behind )](bg:#1a1a2e fg:#ffaa00)]($style)"
+
+[python]
+symbol = " "
+style = "bg:#0d0d1e fg:#ffaa00"
+format = "[[ $symbol$pyenv_prefix($version) ](fg:#ffaa00)]($style)"
+
+[nodejs]
+symbol = " "
+format = "[[ $symbol$version ](fg:#00ff88)]($style)"
+
+[rust]
+symbol = " "
+format = "[[ $symbol$version ](fg:#ff4400)]($style)"
+
+[cmd_duration]
+min_time = 2_000
+style = "fg:#7ab8d4"
+format = "[$duration ]($style)"
+
+[time]
+disabled = false
+time_format = "%H:%M"
+style = "bg:#00d4ff fg:#000000 bold"
+format = "[[ 󱑍 $time ](bg:#00d4ff fg:#000000 bold)]($style)"
+
+[fill]
+symbol = " "
+
+[character]
+success_symbol = "[❯](bold fg:#00d4ff)"
+error_symbol   = "[❯](bold fg:#ff4488)"

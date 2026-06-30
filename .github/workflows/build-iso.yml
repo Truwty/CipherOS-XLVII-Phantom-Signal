@@ -1,0 +1,101 @@
+name: Build CipherOS ISO
+
+# Manual by default — this is a heavy build (45min-several hours, multiple
+# GB of downloads) and shouldn't run on every push. Also runs on version
+# tags so pushing a tag produces a Release with the ISO attached.
+on:
+  workflow_dispatch:
+    inputs:
+      full_build:
+        description: >
+          Embed all Ollama models in the image (~13GB extra). Needs a
+          self-hosted runner with 40GB+ free disk — GitHub-hosted runners
+          only have ~14GB free and will likely run out of space. Leave
+          unchecked for the lightweight build: same desktop and AI core,
+          but models are pulled from Ollama's registry on first use
+          instead of being pre-baked.
+        type: boolean
+        default: false
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # only used to attach the ISO to a Release on tag push
+
+concurrency:
+  group: cipheros-iso-build
+  cancel-in-progress: false
+
+jobs:
+  build-iso:
+    # NOTE: hosted runners have ~14GB free disk by default, which is only
+    # realistic for the lightweight (full_build=false) path. For a full,
+    # all-models-embedded image, point this at a self-hosted runner instead,
+    # e.g. `runs-on: [self-hosted, linux, x64]`, with 40GB+ free disk.
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Free up runner disk space
+        run: |
+          echo "Before cleanup:"
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache /usr/local/.ghcup /usr/share/swift \
+                      "${AGENT_TOOLSDIRECTORY:-}" 2>/dev/null || true
+          docker image prune -af || true
+          echo "After cleanup:"
+          df -h /
+
+      - name: Set lightweight build marker (skip embedding Ollama models)
+        if: ${{ github.event.inputs.full_build != 'true' }}
+        run: |
+          mkdir -p lb/config/includes.chroot/etc/cipher
+          touch lb/config/includes.chroot/etc/cipher/skip_model_prefetch
+          echo "Lightweight build selected — Ollama models will be pulled on first use, not pre-baked."
+
+      - name: Build ISO inside a Kali Rolling container
+        run: |
+          docker run --rm --privileged \
+            -v "${{ github.workspace }}:/work" -w /work \
+            kalilinux/kali-rolling \
+            bash -c '
+              set -e
+              apt-get update
+              apt-get install -y live-build debootstrap squashfs-tools xorriso \
+                  isolinux syslinux-utils genisoimage curl git python3 python3-pip \
+                  apt-transport-https gnupg wget kali-archive-keyring
+              bash build.sh
+            '
+
+      - name: Show build output
+        if: always()
+        run: |
+          ls -lh output/ 2>/dev/null || echo "No output directory — build likely failed before producing an ISO."
+          tail -n 200 build.log 2>/dev/null || true
+
+      - name: Upload ISO artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cipheros-xlvii-iso
+          path: |
+            output/*.iso
+            output/*.sha256
+            output/*.sha512
+            output/*.md5
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Attach to GitHub Release
+        if: success() && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            output/*.iso
+            output/*.sha256
+            output/*.sha512
+            output/*.md5

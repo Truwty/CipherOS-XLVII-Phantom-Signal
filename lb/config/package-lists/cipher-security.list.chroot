@@ -1,0 +1,3 @@
+aide apparmor apparmor-profiles apparmor-utils auditd fail2ban
+firejail lynis rkhunter chkrootkit clamav clamav-daemon ufw gufw
+cryptsetup keepassxc gnupg2 libpam-pwquality

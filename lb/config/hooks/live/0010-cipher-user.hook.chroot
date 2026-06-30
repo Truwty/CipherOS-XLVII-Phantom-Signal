@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Configuring user cipher..."
+id cipher &>/dev/null || useradd -m -s /usr/bin/zsh \
+    -G sudo,audio,video,input,plugdev,netdev,render,kvm cipher
+echo "cipher:cipher" | chpasswd
+echo 'cipher ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/cipher
+chmod 0440 /etc/sudoers.d/cipher
+chsh -s /usr/bin/zsh cipher 2>/dev/null || true
+mkdir -p /home/cipher/{Desktop,Documents,Downloads,Pictures,Videos,Projects}
+mkdir -p /home/cipher/.local/share/cipher/{memory,logs,cache,sessions,identity,backups}
+mkdir -p /home/cipher/.config/{cipher,hypr,ags,kitty,dunst,fuzzel,zsh}
+chown -R cipher:cipher /home/cipher
+echo "[CipherOS] User cipher configured."

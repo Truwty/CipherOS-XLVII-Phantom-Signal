@@ -1,0 +1,10 @@
+[Unit]
+Description=CipherOS Morning Briefing Timer
+
+[Timer]
+OnCalendar=*-*-* 07:00:00
+AccuracySec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

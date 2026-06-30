@@ -1,0 +1,182 @@
+/* CipherOS XLVII — AGS Stylesheet */
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap");
+
+$bg0:       rgba(8,   8,  26, 0.92);
+$bg1:       rgba(13,  13, 30, 0.88);
+$bg2:       rgba(22,  22, 46, 0.85);
+$border:    rgba(0,  212, 255, 0.22);
+$border-hi: rgba(0,  212, 255, 0.65);
+$accent:    #00d4ff;
+$accent2:   #0080ff;
+$text:      #c8e8ff;
+$text-dim:  #7ab8d4;
+$warn:      #ffaa00;
+$crit:      #ff4488;
+$green:     #00ff88;
+$radius:    10px;
+$font:      "JetBrains Mono", monospace;
+
+* { font-family: $font; }
+
+/* ── Bar ──────────────────────────────────────────────────────────────────── */
+.Bar {
+    background-color: $bg0;
+    border-bottom: 1px solid $border;
+    min-height: 38px;
+    padding: 0 8px;
+    font-size: 12px;
+    color: $text;
+}
+
+.bar-left, .bar-center, .bar-right { padding: 4px 4px; }
+
+.cipher-btn {
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,128,255,0.15));
+    border: 1px solid $border;
+    border-radius: $radius;
+    color: $accent;
+    padding: 2px 12px;
+    font-weight: bold;
+    font-size: 12px;
+    &:hover { background: rgba(0,212,255,0.25); border-color: $border-hi; }
+}
+
+.workspace {
+    background: $bg2;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: $text-dim;
+    min-width: 24px;
+    min-height: 24px;
+    font-size: 11px;
+    margin: 0 1px;
+    &.active {
+        background: rgba(0,212,255,0.2);
+        border-color: $accent;
+        color: $accent;
+    }
+    &:hover { border-color: $border-hi; color: $text; }
+}
+
+.active-window {
+    color: $text-dim;
+    font-size: 11px;
+    opacity: 0.85;
+}
+
+.clock-box { gap: 6px; }
+.clock { color: $accent; font-weight: bold; font-size: 13px; }
+.date  { color: $text-dim; font-size: 11px; }
+
+.volume, .network, .battery {
+    color: $text-dim;
+    font-size: 11px;
+    padding: 0 4px;
+    label { color: $text-dim; }
+}
+
+.systray { gap: 4px; }
+.tray-item {
+    background: transparent;
+    border: none;
+    padding: 2px;
+    &:hover { background: $bg2; border-radius: 4px; }
+}
+
+/* ── CipherHUD ────────────────────────────────────────────────────────────── */
+.CipherHUD { background: transparent; }
+
+.cipher-chip {
+    background: $bg0;
+    border: 1px solid $border;
+    border-radius: $radius;
+    padding: 4px 12px;
+    color: $text;
+    font-size: 12px;
+    min-width: 120px;
+
+    &.status-operational { border-color: rgba(0,212,255,0.35); }
+    &.status-thinking    { border-color: rgba(255,170,0,0.5); animation: pulse 1.2s infinite; }
+    &.status-speaking    { border-color: rgba(0,255,136,0.5); }
+    &.status-error       { border-color: rgba(255,68,136,0.6); }
+
+    &:hover { border-color: $border-hi; background: $bg1; }
+}
+
+.chip-icon   { color: $accent; font-size: 14px; margin-right: 4px; }
+.chip-status { color: $text; font-size: 11px; }
+
+.metrics-pill {
+    background: $bg0;
+    border: 1px solid $border;
+    border-radius: $radius;
+    padding: 4px 10px;
+    font-size: 10px;
+    .metric      { color: $text-dim; }
+    .metric-warn { color: $warn; }
+}
+
+.content-panel {
+    background: $bg1;
+    border: 1px solid $border-hi;
+    border-radius: $radius;
+    padding: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+.panel-header { margin-bottom: 4px; }
+.panel-title  { color: $accent; font-weight: bold; font-size: 12px; }
+.panel-close  {
+    background: transparent; border: none;
+    color: $text-dim; font-size: 12px;
+    &:hover { color: $crit; }
+}
+.panel-scroll { background: transparent; }
+.panel-text   { color: $text; font-size: 12px; line-height: 1.5; }
+.panel-btn {
+    background: $bg2; border: 1px solid $border;
+    border-radius: 6px; color: $text-dim;
+    padding: 3px 10px; font-size: 11px;
+    &:hover { border-color: $accent; color: $accent; }
+}
+
+.alert-stack { gap: 4px; }
+.alert-banner {
+    border-radius: 8px;
+    padding: 8px 12px;
+    border-left: 3px solid;
+    &.alert-warning  { background: rgba(255,170,0,0.12); border-color: $warn; }
+    &.alert-critical { background: rgba(255,68,136,0.12); border-color: $crit; }
+    &.alert-normal   { background: $bg2; border-color: $accent; }
+}
+.alert-icon  { font-size: 16px; }
+.alert-title { color: $text; font-weight: bold; font-size: 12px; }
+.alert-msg   { color: $text-dim; font-size: 11px; }
+
+/* ── Notifications ────────────────────────────────────────────────────────── */
+.Notifications { background: transparent; }
+.notification {
+    background: $bg1;
+    border: 1px solid $border;
+    border-radius: $radius;
+    padding: 10px 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    &.urgency-0 { border-color: rgba(0,212,255,0.2); }
+    &.urgency-1 { border-color: $border; }
+    &.urgency-2 { border-color: $crit; }
+}
+.notif-summary { color: $text; font-weight: bold; font-size: 12px; }
+.notif-body    { color: $text-dim; font-size: 11px; }
+.notif-close   {
+    background: transparent; border: none;
+    color: $text-dim; font-size: 11px;
+    &:hover { color: $crit; }
+}
+
+/* ── Animations ───────────────────────────────────────────────────────────── */
+@keyframes pulse {
+    0%   { opacity: 1.0; }
+    50%  { opacity: 0.5; }
+    100% { opacity: 1.0; }
+}

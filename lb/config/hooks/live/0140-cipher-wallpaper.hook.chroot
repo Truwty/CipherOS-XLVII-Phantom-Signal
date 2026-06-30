@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Generating procedural wallpaper..."
+python3 /usr/local/share/cipher/generate_wallpaper.py
+# Copy into SDDM theme assets too, so the login screen uses the same artwork
+mkdir -p /usr/share/sddm/themes/cipheros/assets
+cp /usr/local/share/cipher/assets/wallpaper-default.png \
+   /usr/share/sddm/themes/cipheros/assets/wallpaper.png
+echo "[CipherOS] Wallpaper assets installed."

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Quick status check for all CipherOS services
+BOLD="\033[1m"; CYAN="\033[0;36m"; GREEN="\033[0;32m"; RED="\033[0;31m"; NC="\033[0m"
+echo -e "${BOLD}${CYAN}CipherOS Service Status${NC}"
+for svc in cipher-ai-core cipher-voice cipher-screen-reader cipher-system-monitor cipher-self-repair ollama sddm; do
+    status=$(systemctl is-active "$svc" 2>/dev/null || echo "inactive")
+    color="${RED}"
+    [[ "$status" == "active" ]] && color="${GREEN}"
+    printf "  %-30s %b%s%b\n" "$svc" "$color" "$status" "$NC"
+done

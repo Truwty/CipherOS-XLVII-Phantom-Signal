@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+
+# CI / constrained-disk builds can skip baking models into the image by
+# dropping a marker file before `lb build` runs (the GitHub Actions
+# workflow does this on hosted runners, where the full model set — about
+# 13GB — won't fit alongside the rest of the live filesystem). The
+# resulting ISO still boots into a working CipherOS desktop and AI core;
+# cipher-ai-core just pulls models from Ollama's registry on first use
+# instead of having them preloaded. Full local/self-hosted builds leave
+# this file absent and get the complete offline-ready image.
+SKIP_MARKER="/etc/cipher/skip_model_prefetch"
+
+if [[ -f "$SKIP_MARKER" ]]; then
+    echo "[CipherOS] ${SKIP_MARKER} present — skipping Ollama model pre-pull."
+    echo "[CipherOS] Models will be pulled on first use instead of baked into the image."
+    rm -f "$SKIP_MARKER"
+    exit 0
+fi
+
+echo "[CipherOS] Pre-pulling Ollama AI models (this stage needs ~13GB free)..."
+ollama serve &
+OLLAMA_PID=$!
+sleep 12
+echo "Pulling llama3.1:8b — primary reasoning model..."
+ollama pull llama3.1:8b
+echo "Pulling moondream — vision model..."
+ollama pull moondream
+echo "Pulling nomic-embed-text — embeddings..."
+ollama pull nomic-embed-text
+echo "Pulling phi3:mini — fast lightweight model..."
+ollama pull phi3:mini
+echo "Pulling codellama:7b — code generation..."
+ollama pull codellama:7b
+kill $OLLAMA_PID 2>/dev/null || true
+sleep 5
+echo "[CipherOS] All Ollama models cached."

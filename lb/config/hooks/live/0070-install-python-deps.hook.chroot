@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Installing CipherOS AI Python stack..."
+pip3 install --break-system-packages \
+    anthropic openai ollama \
+    langchain langchain-community langchain-ollama \
+    langdetect transformers sentence-transformers tiktoken \
+    chromadb hnswlib \
+    pytesseract Pillow opencv-python-headless mss pyautogui \
+    duckduckgo_search beautifulsoup4 lxml httpx aiohttp feedparser \
+    psutil pynput python-xlib evdev dbus-python pulsectl pulsectl-asyncio \
+    pyaudio sounddevice soundfile librosa \
+    pydantic pydantic-settings rich typer click schedule APScheduler \
+    watchdog python-dateutil pytz arrow orjson msgpack \
+    cryptography keyring python-dotenv gputil requests
+echo "[CipherOS] Python AI stack installed."

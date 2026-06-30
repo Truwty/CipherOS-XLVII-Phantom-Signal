@@ -1,0 +1,6 @@
+# Development tools
+git-extras hub gh tig lazygit
+shellcheck shfmt bats
+python3-black python3-mypy python3-pytest python3-pylint
+sqlite3 libsqlite3-dev redis-tools
+docker.io docker-compose

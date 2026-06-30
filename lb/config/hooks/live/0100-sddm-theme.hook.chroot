@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+echo "[CipherOS] Configuring SDDM login manager..."
+mkdir -p /usr/share/sddm/themes/cipheros
+cat > /etc/sddm.conf << 'SDDMCFG'
+[Autologin]
+User=cipher
+Session=hyprland
+
+[Theme]
+Current=cipheros
+
+[General]
+HaltCommand=/usr/bin/systemctl poweroff
+RebootCommand=/usr/bin/systemctl reboot
+SDDMCFG
+echo "[CipherOS] SDDM configured."

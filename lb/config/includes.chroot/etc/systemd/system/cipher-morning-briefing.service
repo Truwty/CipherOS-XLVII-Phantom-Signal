@@ -1,0 +1,9 @@
+[Unit]
+Description=CipherOS Morning Briefing
+After=network-online.target cipher-ai-core.service cipher-voice.service
+
+[Service]
+Type=oneshot
+User=cipher
+Environment=HOME=/home/cipher
+ExecStart=/usr/bin/python3 /usr/local/lib/cipher/briefing/morning_briefing.py --auto

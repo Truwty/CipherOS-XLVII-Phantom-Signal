@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# CipherOS — trigger voice capture from command line / Hyprland bind
+exec python3 -c "
+import socket, sys
+try:
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect('/tmp/cipher_voice.sock')
+    s.sendall(b'trigger')
+    s.close()
+    print('Voice capture triggered.')
+except FileNotFoundError:
+    print('Voice daemon not running.')
+    sys.exit(1)
+"

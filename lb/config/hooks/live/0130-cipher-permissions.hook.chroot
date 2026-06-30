@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+chmod +x /usr/local/bin/cipher /usr/local/bin/cipher-* /usr/local/bin/piper-speak 2>/dev/null || true
+cat >> /etc/security/limits.conf << 'LIMITS'
+cipher    -    rtprio    95
+cipher    -    memlock   unlimited
+cipher    -    nice      -20
+@audio    -    rtprio    95
+@audio    -    memlock   unlimited
+LIMITS
+usermod -aG audio cipher
+mkdir -p /etc/pipewire/pipewire.conf.d
+cat > /etc/pipewire/pipewire.conf.d/99-cipher-low-latency.conf << 'PWCFG'
+context.properties = {
+    default.clock.rate        = 48000
+    default.clock.quantum     = 32
+    default.clock.min-quantum = 32
+    default.clock.max-quantum = 1024
+}
+PWCFG
+chown -R cipher:cipher /home/cipher
+chown -R root:cipher /etc/cipher 2>/dev/null || true
+chmod 750 /etc/cipher 2>/dev/null || true
+chmod 640 /etc/cipher/*.conf 2>/dev/null || true
+echo "[CipherOS] Permissions configured."

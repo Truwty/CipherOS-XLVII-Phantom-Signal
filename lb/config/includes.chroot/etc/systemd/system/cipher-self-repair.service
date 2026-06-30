@@ -1,0 +1,15 @@
+[Unit]
+Description=CipherOS Self-Repair Watchdog
+After=network.target cipher-ai-core.service
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 /usr/local/lib/cipher/repair/self_repair.py
+Restart=always
+RestartSec=15s
+StandardOutput=append:/home/cipher/.local/share/cipher/logs/self-repair.log
+StandardError=append:/home/cipher/.local/share/cipher/logs/self-repair-error.log
+
+[Install]
+WantedBy=multi-user.target
