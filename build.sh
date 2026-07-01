@@ -46,17 +46,24 @@ check_deps() {
 
 setup_lb() {
     log "Configuring live-build for CipherOS XLVII..."
+
     mkdir -p "${BUILD_DIR}" "${OUTPUT_DIR}"
     cd "${BUILD_DIR}"
 
-    # IMPORTANT: call `lb config` WITHOUT `noauto`.
-    # `noauto` suppresses auto-detection of auto/config, causing live-build
-    # to fall through to its compiled-in defaults (Debian testing, not Kali).
-    # Without `noauto`, live-build finds lb/auto/config, executes it, and
-    # auto/config calls `lb config noauto [all our Kali flags]`.
-    # Root cause confirmed in CI: the prior `lb config noauto` (no flags)
-    # bootstrapped Debian testing, failing every kali-* package lookup.
-    lb config >> "${LOG_FILE}" 2>&1
+    # Start from a completely clean live-build state
+    lb clean --purge || true
+    rm -rf config cache .build
+
+    chmod +x auto/config
+
+    log "Running lb/auto/config directly..."
+    ./auto/config
+
+    log "Verifying configuration..."
+    if ! grep -R "kali-rolling" . >/dev/null 2>&1; then
+        err "live-build was not configured for kali-rolling."
+    fi
+
     ok "live-build configured."
 }
 
