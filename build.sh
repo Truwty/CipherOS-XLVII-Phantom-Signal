@@ -48,13 +48,15 @@ setup_lb() {
     log "Configuring live-build for CipherOS XLVII..."
     mkdir -p "${BUILD_DIR}" "${OUTPUT_DIR}"
     cd "${BUILD_DIR}"
-    # All flags live in lb/auto/config — the single source of truth that
-    # `lb config` auto-detects and executes. Do not duplicate flags here;
-    # a prior version of this function had its own divergent flag set
-    # (--bootloader vs --bootloaders, fabricated --username/--hostname
-    # flags that don't exist in live-build) which had drifted out of sync
-    # with auto/config. Edit lb/auto/config instead.
-    lb config noauto >> "${LOG_FILE}" 2>&1
+
+    # IMPORTANT: call `lb config` WITHOUT `noauto`.
+    # `noauto` suppresses auto-detection of auto/config, causing live-build
+    # to fall through to its compiled-in defaults (Debian testing, not Kali).
+    # Without `noauto`, live-build finds lb/auto/config, executes it, and
+    # auto/config calls `lb config noauto [all our Kali flags]`.
+    # Root cause confirmed in CI: the prior `lb config noauto` (no flags)
+    # bootstrapped Debian testing, failing every kali-* package lookup.
+    lb config >> "${LOG_FILE}" 2>&1
     ok "live-build configured."
 }
 

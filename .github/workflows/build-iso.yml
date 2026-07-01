@@ -60,6 +60,7 @@ jobs:
       - name: Build ISO inside a Kali Rolling container
         run: |
           docker run --rm --privileged \
+            -e DEBIAN_FRONTEND=noninteractive \
             -v "${{ github.workspace }}:/work" -w /work \
             kalilinux/kali-rolling \
             bash -c '

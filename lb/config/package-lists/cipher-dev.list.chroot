@@ -1,6 +1,8 @@
-# Development tools
-git-extras hub gh tig lazygit
-shellcheck shfmt bats
-python3-black python3-mypy python3-pytest python3-pylint
+# Development tools — all available in Kali rolling main
+# gh (GitHub CLI) is NOT in Kali's repos; install it via hook or manually
+git-extras hub tig lazygit
+shellcheck shfmt
 sqlite3 libsqlite3-dev redis-tools
 docker.io docker-compose
+# python3-black, python3-pylint, python3-mypy are installed via pip in the
+# 0070-install-python-deps hook rather than apt, as Kali's versions lag behind

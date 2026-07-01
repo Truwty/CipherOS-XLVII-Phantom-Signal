@@ -1,3 +1,4 @@
 aide apparmor apparmor-profiles apparmor-utils auditd fail2ban
-firejail lynis rkhunter chkrootkit clamav clamav-daemon ufw gufw
+lynis rkhunter chkrootkit clamav clamav-daemon ufw gufw
 cryptsetup keepassxc gnupg2 libpam-pwquality
+# firejail removed — not available in current Kali rolling (use bubblewrap instead)

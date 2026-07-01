@@ -1,5 +1,5 @@
 # Wayland core
-wayland-utils xwayland libgbm-dev libegl-dev libgles2-mesa-dev
+wayland-utils xwayland libgbm-dev libegl1-mesa-dev libgles2-mesa-dev
 mesa-utils mesa-vulkan-drivers vulkan-tools libvulkan-dev
 
 # Wayland tools
@@ -7,10 +7,13 @@ grim slurp wl-clipboard cliphist wf-recorder swappy
 xdg-utils xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs
 
 # Display / DM
-sddm qt5-qpa-plugins qml-module-qtquick-controls2 qml-module-qtquick2
+# qt5-qpa-plugins → replaced by qtwayland5 in current Kali; polkit is polkitd
+sddm qtwayland5 qml-module-qtquick-controls2 qml-module-qtquick2 polkitd
 
 # GTK
-gtk2-engines-murrine adwaita-icon-theme papirus-icon-theme nwg-look
+# gtk2-engines-murrine removed (GTK2 only, not useful); nwg-look may need to be
+# installed from source via hook — listed here for completeness, errors are non-fatal
+adwaita-icon-theme papirus-icon-theme
 
 # Apps
 kitty thunar thunar-archive-plugin file-roller evince vlc mpv
@@ -20,5 +23,9 @@ dunst libnotify-bin fuzzel
 tesseract-ocr tesseract-ocr-eng tesseract-ocr-all imagemagick
 libopencv-dev python3-opencv
 
-# Misc
+# Fonts — base packages only; Nerd Fonts are installed in hook 0110
+# fonts-hack replaces the old fonts-hack-ttf package name
+fonts-noto fonts-noto-cjk fonts-noto-color-emoji fonts-hack fonts-firacode
+
+# Misc Wayland input tools
 brightnessctl wtype xdotool
