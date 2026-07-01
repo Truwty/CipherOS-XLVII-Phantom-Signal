@@ -37,5 +37,6 @@ lb config noauto \
     --mirror-bootstrap "http://http.kali.org/kali" \
     --mirror-binary "http://http.kali.org/kali" \
     --security false \
+    --updates false \
     --system live \
     "${@}"
