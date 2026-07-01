@@ -1,19 +1,16 @@
 #!/bin/bash
 # CipherOS XLVII — live-build configuration
 #
-# Flag choices verified against the live-build manpage (lb_config(1), current
-# across Debian testing/unstable/trixie/bookworm) and against a working Kali
-# live-build-config reference (github.com/prateepb/kali-live-build). Kali is
-# treated as the distribution directly — no --mode/--parent-* indirection,
-# matching how Kali's own build scripts do it.
-#
-# Build host requirement: this must be run on Kali Linux itself, or a Debian
-# host with the `kali-archive-keyring` package available, so that
-# --keyring-packages can pull a keyring live-build trusts for the Kali
-# mirror. Building on a vanilla Ubuntu/Debian host without that keyring
-# present will cause apt-secure signature verification to fail during
-# bootstrap. See README.md "Build prerequisites".
+# Build host requirement: Kali Linux or Kali container.
+
 set -e
+
+echo "====================================="
+echo "EXECUTING lb/auto/config"
+echo "Current directory:"
+pwd
+echo "====================================="
+
 lb config noauto \
     --apt-options "--yes -oAcquire::http::Timeout=60 -oAcquire::Retries=3" \
     --archive-areas "main contrib non-free non-free-firmware" \
@@ -34,9 +31,9 @@ lb config noauto \
     --iso-volume "CipherOS XLVII" \
     --linux-flavours amd64 \
     --memtest none \
-    --mirror-bootstrap "http://http.kali.org/kali" \
-    --mirror-binary "http://http.kali.org/kali" \
+    --mirror-bootstrap "https://http.kali.org/kali" \
+    --mirror-binary "https://http.kali.org/kali" \
     --security false \
     --updates false \
     --system live \
-    "${@}"
+    "$@"
